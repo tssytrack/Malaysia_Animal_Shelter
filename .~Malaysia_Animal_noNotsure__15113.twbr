@@ -421,6 +421,12 @@
       <column-instance column='[ColorName_1]' derivation='None' name='[none:ColorName_1:nk]' pivot='key' type='nominal' />
       <column-instance column='[Gender]' derivation='None' name='[none:Gender:nk]' pivot='key' type='nominal' />
       <column-instance column='[Type]' derivation='None' name='[none:Type:nk]' pivot='key' type='nominal' />
+      <group caption='Action (Adopted,Health_Vaccination_Spay)' hidden='true' name='[Action (Adopted,Health_Vaccination_Spay)]' name-style='unqualified' user:auto-column='sheet_link'>
+        <groupfilter function='crossjoin'>
+          <groupfilter function='level-members' level='[Adopted]' />
+          <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+        </groupfilter>
+      </group>
       <group caption='Action (Type)' hidden='true' name='[Action (Type)]' name-style='unqualified' user:auto-column='sheet_link'>
         <groupfilter function='crossjoin'>
           <groupfilter function='level-members' level='[Type]' />
@@ -431,7 +437,7 @@
           <groupfilter function='level-members' level='[Type]' />
         </groupfilter>
       </group>
-      <layout dim-ordering='alphabetic' dim-percentage='0.619226' measure-ordering='alphabetic' measure-percentage='0.380774' show-structure='true' user-set-layout='true' />
+      <layout dim-ordering='alphabetic' dim-percentage='0.602996' measure-ordering='alphabetic' measure-percentage='0.397004' show-structure='true' user-set-layout='true' />
       <style>
         <style-rule element='mark'>
           <encoding attr='color' field='[none:Calculation_1063482857688522758:nk]' type='palette'>
@@ -512,10 +518,10 @@
           </encoding>
           <encoding attr='color' field='[none:Type:nk]' type='palette'>
             <map to='#4e79a7'>
-              <bucket>&quot;Cat&quot;</bucket>
+              <bucket>&quot;Dog&quot;</bucket>
             </map>
             <map to='#f28e2b'>
-              <bucket>&quot;Dog&quot;</bucket>
+              <bucket>&quot;Cat&quot;</bucket>
             </map>
           </encoding>
           <encoding attr='color' field='[none:BreedName_1:nk]' type='palette'>
@@ -593,6 +599,22 @@
         <param name='target' value='Dashboard 1' />
       </command>
     </action>
+    <action caption='Highlight 1 (generated)' name='[Action2]'>
+      <activation auto-clear='true' type='on-select' />
+      <source dashboard='Dashboard 1' type='sheet' />
+      <command command='tsc:brush'>
+        <param name='field-captions' value='age_1\,2\,older' />
+        <param name='target' value='Dashboard 1' />
+      </command>
+    </action>
+    <action caption='Filter 2 (generated)' name='[Action3]'>
+      <activation auto-clear='true' type='on-select' />
+      <source dashboard='Dashboard 1' type='sheet' worksheet='Health' />
+      <command command='tsc:tsl-filter'>
+        <param name='special-fields' value='all' />
+        <param name='target' value='Dashboard 1' />
+      </command>
+    </action>
   </actions>
   <worksheets>
     <worksheet name='Adoption Speed'>
@@ -602,8 +624,12 @@
             <datasource caption='malaysia_animal_data' name='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6' />
           </datasources>
           <datasource-dependencies datasource='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6'>
+            <column caption='Adopted' datatype='string' name='[Adopted]' role='dimension' type='nominal' />
             <column caption='Adoption Speed' datatype='string' name='[AdoptionSpeed]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Age]' role='measure' type='quantitative' />
+            <column caption='Health_Vaccination_Spay' datatype='string' name='[Calculation_1063482857673687040]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Health] + &quot; &quot; + [Vaccinated] + &quot; &quot; + [Sterilized]' />
+            </column>
             <column caption='Age_eng' datatype='string' name='[Calculation_1063482857688522758]' role='dimension' type='nominal'>
               <calculation class='tableau' formula='if  [Age] &lt;= 6 then &quot;less than 6 months&quot; &#10;elseif 7 &lt;= [Age] and [Age] &lt;= 12 then &quot;1 year old&quot; &#10;elseif 13 &lt;= [Age] and [Age] &lt;= 24 then &quot;2 years old&quot; &#10;elseif 25 &lt;= [Age] and [Age] &lt;= 36 then &quot;3 years old&quot; &#10;elseif 37 &lt;= [Age] and [Age] &lt;= 48 then &quot;4 years old&quot; &#10;elseif 49 &lt;= [Age] and [Age] &lt;= 60 then &quot;5 years old&quot; &#10;elseif 61 &lt;= [Age] and [Age] &lt;= 72 then &quot;6 years old&quot; &#10;elseif 73 &lt;= [Age] and [Age] &lt;= 84 then &quot;7 years old&quot; &#10;elseif 85 &lt;= [Age] and [Age] &lt;= 96 then &quot;8 years old&quot; &#10;elseif 97 &lt;= [Age] and [Age] &lt;= 108 then &quot;9 years old&quot; &#10;elseif 109 &lt;= [Age] and [Age] &lt;= 120 then &quot;10 years old&quot; &#10;else &quot;older than 10&quot; end' />
             </column>
@@ -613,17 +639,26 @@
             <column caption='Adoption Speed v.s age percentage' datatype='real' name='[Health Percentage Long (copy)]' role='measure' type='quantitative'>
               <calculation class='tableau' formula='{fixed [Calculation_1063482857692237831], [AdoptionSpeed]: sum([Number of Records])}/{fixed [AdoptionSpeed]: sum([Number of Records])}' />
             </column>
+            <column datatype='string' name='[Health]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
               <calculation class='tableau' formula='1' />
             </column>
+            <column datatype='string' name='[Sterilized]' role='dimension' type='nominal' />
             <column caption='Type1' datatype='string' name='[Type]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Vaccinated]' role='dimension' type='nominal' />
             <column-instance column='[AdoptionSpeed]' derivation='None' name='[none:AdoptionSpeed:nk]' pivot='key' type='nominal' />
             <column-instance column='[Calculation_1063482857692237831]' derivation='None' name='[none:Calculation_1063482857692237831:nk]' pivot='key' type='nominal' />
             <column-instance column='[Health Percentage Long (copy)]' derivation='Sum' name='[sum:Health Percentage Long (copy):qk]' pivot='key' type='quantitative' />
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action3]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Adopted]' />
+              <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+            </groupfilter>
+          </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]'>
-            <groupfilter function='level-members' level='[Type]' user:ui-action-filter='[Action1]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='member' level='[Type]' member='&quot;Cat&quot;' user:ui-action-filter='[Action1]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
           <manual-sort column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:AdoptionSpeed:nk]' direction='ASC'>
             <dictionary>
@@ -636,6 +671,7 @@
           </manual-sort>
           <slices>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]</column>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -643,6 +679,11 @@
           <style-rule element='cell'>
             <format attr='height' field='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:AdoptionSpeed:nk]' value='48' />
             <format attr='text-format' field='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Health Percentage Long (copy):qk]' value='p0.00%' />
+          </style-rule>
+          <style-rule element='annotation'>
+            <format attr='fill-color' id='annotation_0' value='#00000000' />
+            <format attr='stroke-color' id='annotation_0' value='#000000' />
+            <format attr='line-end' id='annotation_0' value='dot' />
           </style-rule>
         </style>
         <panes>
@@ -669,6 +710,44 @@
         </panes>
         <rows>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:AdoptionSpeed:nk]</rows>
         <cols>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</cols>
+        <annotations>
+          <annotation class='point' id='0' mark-position='0' pullback='12' text-width='73'>
+            <formatted-text>
+              <run fontcolor='#000000'>Æ </run>
+              <run bold='true' fontcolor='#000000'>&lt;[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Health Percentage Long (copy):qk]&gt;</run>
+              <run>Æ&#10;</run>
+            </formatted-text>
+            <point>
+              <visual-coordinate class='mark'>
+                <tuple-reference>
+                  <tuple-descriptor>
+                    <pane-descriptor>
+                      <x-fields>
+                        <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</field>
+                      </x-fields>
+                      <y-fields>
+                        <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:AdoptionSpeed:nk]</field>
+                      </y-fields>
+                    </pane-descriptor>
+                    <columns>
+                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:AdoptionSpeed:nk]</field>
+                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Calculation_1063482857692237831:nk]</field>
+                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Health Percentage Long (copy):qk]</field>
+                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</field>
+                    </columns>
+                  </tuple-descriptor>
+                  <tuple>
+                    <value>&quot;SameDay&quot;</value>
+                    <value>&quot;less than 2 years old&quot;</value>
+                    <value>0.21904761904761905</value>
+                    <value>36</value>
+                  </tuple>
+                </tuple-reference>
+              </visual-coordinate>
+            </point>
+            <body x='80' y='2' />
+          </annotation>
+        </annotations>
       </table>
       <simple-id uuid='{8595C47F-20F4-4373-8904-4C13F9D11CD0}' />
     </worksheet>
@@ -676,7 +755,7 @@
       <layout-options>
         <title>
           <formatted-text>
-            <run bold='true' fontcolor='#000000'>Top 5 Listed Age</run>
+            <run bold='true' fontcolor='#000000'>Top 5 Adopted Age</run>
           </formatted-text>
         </title>
       </layout-options>
@@ -686,23 +765,40 @@
             <datasource caption='malaysia_animal_data' name='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6' />
           </datasources>
           <datasource-dependencies datasource='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6'>
+            <column caption='Adopted' datatype='string' name='[Adopted]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Age]' role='measure' type='quantitative' />
+            <column caption='Health_Vaccination_Spay' datatype='string' name='[Calculation_1063482857673687040]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Health] + &quot; &quot; + [Vaccinated] + &quot; &quot; + [Sterilized]' />
+            </column>
             <column caption='Age_eng' datatype='string' name='[Calculation_1063482857688522758]' role='dimension' type='nominal'>
               <calculation class='tableau' formula='if  [Age] &lt;= 6 then &quot;less than 6 months&quot; &#10;elseif 7 &lt;= [Age] and [Age] &lt;= 12 then &quot;1 year old&quot; &#10;elseif 13 &lt;= [Age] and [Age] &lt;= 24 then &quot;2 years old&quot; &#10;elseif 25 &lt;= [Age] and [Age] &lt;= 36 then &quot;3 years old&quot; &#10;elseif 37 &lt;= [Age] and [Age] &lt;= 48 then &quot;4 years old&quot; &#10;elseif 49 &lt;= [Age] and [Age] &lt;= 60 then &quot;5 years old&quot; &#10;elseif 61 &lt;= [Age] and [Age] &lt;= 72 then &quot;6 years old&quot; &#10;elseif 73 &lt;= [Age] and [Age] &lt;= 84 then &quot;7 years old&quot; &#10;elseif 85 &lt;= [Age] and [Age] &lt;= 96 then &quot;8 years old&quot; &#10;elseif 97 &lt;= [Age] and [Age] &lt;= 108 then &quot;9 years old&quot; &#10;elseif 109 &lt;= [Age] and [Age] &lt;= 120 then &quot;10 years old&quot; &#10;else &quot;older than 10&quot; end' />
             </column>
+            <column datatype='string' name='[Health]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
               <calculation class='tableau' formula='1' />
             </column>
+            <column datatype='string' name='[Sterilized]' role='dimension' type='nominal' />
             <column caption='Type1' datatype='string' name='[Type]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Vaccinated]' role='dimension' type='nominal' />
             <column-instance column='[Number of Records]' derivation='Avg' name='[avg:Number of Records:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Adopted]' derivation='None' name='[none:Adopted:nk]' pivot='key' type='nominal' />
             <column-instance column='[Calculation_1063482857688522758]' derivation='None' name='[none:Calculation_1063482857688522758:nk]' pivot='key' type='nominal' />
             <column-instance column='[Number of Records]' derivation='Sum' name='[pcto:sum:Number of Records:qk]' pivot='key' type='quantitative'>
               <table-calc ordering-type='Rows' type='PctTotal' />
             </column-instance>
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action3]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Adopted]' />
+              <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+            </groupfilter>
+          </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]' context='true'>
-            <groupfilter function='level-members' level='[Type]' user:ui-action-filter='[Action1]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='member' level='[Type]' member='&quot;Cat&quot;' user:ui-action-filter='[Action1]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Adopted:nk]'>
+            <groupfilter function='level-members' level='[none:Adopted:nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
           </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Calculation_1063482857688522758:nk]'>
             <groupfilter count='5' end='top' function='end' units='records' user:ui-marker='end' user:ui-top-by-field='true'>
@@ -713,7 +809,9 @@
           </filter>
           <slices>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]</column>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Adopted:nk]</column>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Calculation_1063482857688522758:nk]</column>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -812,9 +910,25 @@
             <datasource caption='malaysia_animal_data' name='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6' />
           </datasources>
           <datasource-dependencies datasource='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6'>
+            <column caption='Adopted' datatype='string' name='[Adopted]' role='dimension' type='nominal' />
+            <column caption='Health_Vaccination_Spay' datatype='string' name='[Calculation_1063482857673687040]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Health] + &quot; &quot; + [Vaccinated] + &quot; &quot; + [Sterilized]' />
+            </column>
+            <column datatype='string' name='[Health]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Sterilized]' role='dimension' type='nominal' />
             <column caption='Type1' datatype='string' name='[Type]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Vaccinated]' role='dimension' type='nominal' />
             <column-instance column='[Type]' derivation='None' name='[none:Type:nk]' pivot='key' type='nominal' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action3]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Adopted]' />
+              <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+            </groupfilter>
+          </filter>
+          <slices>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]</column>
+          </slices>
           <aggregation value='true' />
         </view>
         <style>
@@ -874,16 +988,29 @@
             <datasource caption='malaysia_animal_data' name='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6' />
           </datasources>
           <datasource-dependencies datasource='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6'>
+            <column caption='Adopted' datatype='string' name='[Adopted]' role='dimension' type='nominal' />
             <column caption='BreedName 1' datatype='string' name='[BreedName_1]' role='dimension' type='nominal' />
+            <column caption='Health_Vaccination_Spay' datatype='string' name='[Calculation_1063482857673687040]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Health] + &quot; &quot; + [Vaccinated] + &quot; &quot; + [Sterilized]' />
+            </column>
+            <column datatype='string' name='[Health]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
               <calculation class='tableau' formula='1' />
             </column>
+            <column datatype='string' name='[Sterilized]' role='dimension' type='nominal' />
             <column caption='Type1' datatype='string' name='[Type]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Vaccinated]' role='dimension' type='nominal' />
             <column-instance column='[BreedName_1]' derivation='None' name='[none:BreedName_1:nk]' pivot='key' type='nominal' />
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action3]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Adopted]' />
+              <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+            </groupfilter>
+          </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]' context='true'>
-            <groupfilter function='level-members' level='[Type]' user:ui-action-filter='[Action1]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='member' level='[Type]' member='&quot;Cat&quot;' user:ui-action-filter='[Action1]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:BreedName_1:nk]'>
             <groupfilter count='5' end='top' function='end' units='records' user:ui-marker='end' user:ui-top-by-field='true'>
@@ -895,6 +1022,7 @@
           <slices>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]</column>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:BreedName_1:nk]</column>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -937,16 +1065,29 @@
             <datasource caption='malaysia_animal_data' name='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6' />
           </datasources>
           <datasource-dependencies datasource='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6'>
+            <column caption='Adopted' datatype='string' name='[Adopted]' role='dimension' type='nominal' />
+            <column caption='Health_Vaccination_Spay' datatype='string' name='[Calculation_1063482857673687040]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Health] + &quot; &quot; + [Vaccinated] + &quot; &quot; + [Sterilized]' />
+            </column>
             <column caption='ColorName 1' datatype='string' name='[ColorName_1]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Health]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
               <calculation class='tableau' formula='1' />
             </column>
+            <column datatype='string' name='[Sterilized]' role='dimension' type='nominal' />
             <column caption='Type1' datatype='string' name='[Type]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Vaccinated]' role='dimension' type='nominal' />
             <column-instance column='[ColorName_1]' derivation='None' name='[none:ColorName_1:nk]' pivot='key' type='nominal' />
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action3]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Adopted]' />
+              <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+            </groupfilter>
+          </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]' context='true'>
-            <groupfilter function='level-members' level='[Type]' user:ui-action-filter='[Action1]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='member' level='[Type]' member='&quot;Cat&quot;' user:ui-action-filter='[Action1]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:ColorName_1:nk]'>
             <groupfilter count='5' end='top' function='end' units='records' user:ui-marker='end' user:ui-top-by-field='true'>
@@ -958,6 +1099,7 @@
           <slices>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]</column>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:ColorName_1:nk]</column>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -1008,11 +1150,17 @@
           </datasources>
           <datasource-dependencies datasource='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6'>
             <column caption='Adopted' datatype='string' name='[Adopted]' role='dimension' type='nominal' />
+            <column caption='Health_Vaccination_Spay' datatype='string' name='[Calculation_1063482857673687040]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Health] + &quot; &quot; + [Vaccinated] + &quot; &quot; + [Sterilized]' />
+            </column>
             <column caption='Gender1' datatype='string' name='[Gender]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Health]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
               <calculation class='tableau' formula='1' />
             </column>
+            <column datatype='string' name='[Sterilized]' role='dimension' type='nominal' />
             <column caption='Type1' datatype='string' name='[Type]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Vaccinated]' role='dimension' type='nominal' />
             <column-instance column='[Number of Records]' derivation='Avg' name='[avg:Number of Records:qk]' pivot='key' type='quantitative' />
             <column-instance column='[Adopted]' derivation='None' name='[none:Adopted:nk]' pivot='key' type='nominal' />
             <column-instance column='[Gender]' derivation='None' name='[none:Gender:nk]' pivot='key' type='nominal' />
@@ -1021,15 +1169,22 @@
             </column-instance>
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action3]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Adopted]' />
+              <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+            </groupfilter>
+          </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]' context='true'>
-            <groupfilter function='level-members' level='[Type]' user:ui-action-filter='[Action1]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='member' level='[Type]' member='&quot;Cat&quot;' user:ui-action-filter='[Action1]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Adopted:nk]'>
-            <groupfilter function='member' level='[none:Adopted:nk]' member='&quot;Yes&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+            <groupfilter function='level-members' level='[none:Adopted:nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
           </filter>
           <slices>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]</column>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Adopted:nk]</column>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -1148,7 +1303,7 @@
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]' context='true'>
-            <groupfilter function='level-members' level='[Type]' user:ui-action-filter='[Action1]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='member' level='[Type]' member='&quot;Cat&quot;' user:ui-action-filter='[Action1]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Calculation_1063482857673687040:nk]'>
             <groupfilter count='5' end='top' function='end' units='records' user:ui-marker='end' user:ui-top-by-field='true'>
@@ -1181,6 +1336,10 @@
             <format attr='fill-color' id='annotation_4' value='#00000000' />
             <format attr='stroke-color' id='annotation_4' value='#000000' />
             <format attr='line-end' id='annotation_4' value='dot' />
+            <format attr='fill-color' id='annotation_5' value='#00000000' />
+            <format attr='border-width' id='annotation_5' value='0' />
+            <format attr='stroke-color' id='annotation_5' value='#000000' />
+            <format attr='line-end' id='annotation_5' value='dot' />
           </style-rule>
         </style>
         <panes>
@@ -1275,6 +1434,42 @@
             </point>
             <body x='98' y='-55' />
           </annotation>
+          <annotation class='point' id='5' mark-position='0' pullback='12' text-width='70'>
+            <formatted-text>
+              <run fontcolor='#000000'>Æ </run>
+              <run bold='true' fontcolor='#000000'>&lt;[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Calculation_1063482857674178561:qk]&gt;</run>
+              <run>Æ&#10;</run>
+            </formatted-text>
+            <point>
+              <visual-coordinate class='mark'>
+                <tuple-reference>
+                  <tuple-descriptor>
+                    <pane-descriptor>
+                      <x-fields>
+                        <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Calculation_1063482857673687040:nk]</field>
+                      </x-fields>
+                      <y-fields>
+                        <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</field>
+                      </y-fields>
+                    </pane-descriptor>
+                    <columns>
+                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Adopted:nk]</field>
+                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Calculation_1063482857673687040:nk]</field>
+                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Calculation_1063482857674178561:qk]</field>
+                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</field>
+                    </columns>
+                  </tuple-descriptor>
+                  <tuple>
+                    <value>&quot;NoAfter100&quot;</value>
+                    <value>&quot;Healthy Vaccinated Not Neutered&quot;</value>
+                    <value>0.20860927152317882</value>
+                    <value>189</value>
+                  </tuple>
+                </tuple-reference>
+              </visual-coordinate>
+            </point>
+            <body x='39' y='-65' />
+          </annotation>
         </annotations>
       </table>
       <simple-id uuid='{02A00E6B-42BE-48A6-AE3B-4E10A188E9A9}' />
@@ -1287,6 +1482,10 @@
           </datasources>
           <datasource-dependencies datasource='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6'>
             <column caption='Adopted' datatype='string' name='[Adopted]' role='dimension' type='nominal' />
+            <column caption='Health_Vaccination_Spay' datatype='string' name='[Calculation_1063482857673687040]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Health] + &quot; &quot; + [Vaccinated] + &quot; &quot; + [Sterilized]' />
+            </column>
+            <column datatype='string' name='[Health]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
               <calculation class='tableau' formula='1' />
             </column>
@@ -1294,16 +1493,25 @@
               <calculation class='bin' decimals='0' formula='[PhotoAmt]' peg='0' size='1' />
             </column>
             <column caption='Photo Amt' datatype='real' name='[PhotoAmt]' role='measure' type='quantitative' />
+            <column datatype='string' name='[Sterilized]' role='dimension' type='nominal' />
             <column caption='Type1' datatype='string' name='[Type]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Vaccinated]' role='dimension' type='nominal' />
             <column-instance column='[Adopted]' derivation='None' name='[none:Adopted:nk]' pivot='key' type='nominal' />
             <column-instance column='[Photo Amt (bin)]' derivation='None' name='[none:Photo Amt (bin):qk]' pivot='key' type='quantitative' />
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action3]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Adopted]' />
+              <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+            </groupfilter>
+          </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]'>
-            <groupfilter function='level-members' level='[Type]' user:ui-action-filter='[Action1]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='member' level='[Type]' member='&quot;Cat&quot;' user:ui-action-filter='[Action1]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
           </filter>
           <slices>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]</column>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -1362,13 +1570,8 @@
         </view>
         <style>
           <style-rule element='cell'>
-            <format attr='height' field='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:cfa_breeds:nk]' value='53' />
+            <format attr='height' field='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:cfa_breeds:nk]' value='77' />
             <format attr='text-format' field='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Health Percentage Long (copy 2):qk]' value='p0.00%' />
-          </style-rule>
-          <style-rule element='annotation'>
-            <format attr='fill-color' id='annotation_0' value='#00000000' />
-            <format attr='stroke-color' id='annotation_0' value='#000000' />
-            <format attr='line-end' id='annotation_0' value='dot' />
           </style-rule>
         </style>
         <panes>
@@ -1395,43 +1598,6 @@
         </panes>
         <rows>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:cfa_breeds:nk]</rows>
         <cols>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</cols>
-        <annotations>
-          <annotation class='point' id='0' mark-position='0' pullback='12' text-width='65'>
-            <formatted-text>
-              <run fontcolor='#000000'>Æ </run>
-              <run bold='true' fontcolor='#000000'>&lt;[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Health Percentage Long (copy 2):qk]&gt;</run>
-            </formatted-text>
-            <point>
-              <visual-coordinate class='mark'>
-                <tuple-reference>
-                  <tuple-descriptor>
-                    <pane-descriptor>
-                      <x-fields>
-                        <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</field>
-                      </x-fields>
-                      <y-fields>
-                        <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:cfa_breeds:nk]</field>
-                      </y-fields>
-                    </pane-descriptor>
-                    <columns>
-                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Adopted:nk]</field>
-                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:cfa_breeds:nk]</field>
-                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Health Percentage Long (copy 2):qk]</field>
-                      <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</field>
-                    </columns>
-                  </tuple-descriptor>
-                  <tuple>
-                    <value>&quot;NoAfter100&quot;</value>
-                    <value>true</value>
-                    <value>0.19367209971236818</value>
-                    <value>202</value>
-                  </tuple>
-                </tuple-reference>
-              </visual-coordinate>
-            </point>
-            <body x='92' y='-7' />
-          </annotation>
-        </annotations>
       </table>
       <simple-id uuid='{47332C44-CBFC-49E0-893E-E231EA0564AC}' />
     </worksheet>
@@ -1561,20 +1727,34 @@
             <mapsource name='Tableau' />
           </mapsources>
           <datasource-dependencies datasource='federated.0kvedkb0rvydxd1fnmzxp0wlxzo6'>
+            <column caption='Adopted' datatype='string' name='[Adopted]' role='dimension' type='nominal' />
+            <column caption='Health_Vaccination_Spay' datatype='string' name='[Calculation_1063482857673687040]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Health] + &quot; &quot; + [Vaccinated] + &quot; &quot; + [Sterilized]' />
+            </column>
+            <column datatype='string' name='[Health]' role='dimension' type='nominal' />
             <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
               <calculation class='tableau' formula='1' />
             </column>
             <column caption='State Name' datatype='string' name='[StateName]' role='dimension' semantic-role='[State].[Name]' type='nominal' />
+            <column datatype='string' name='[Sterilized]' role='dimension' type='nominal' />
             <column caption='Type1' datatype='string' name='[Type]' role='dimension' type='nominal' />
+            <column datatype='string' name='[Vaccinated]' role='dimension' type='nominal' />
             <column-instance column='[StateName]' derivation='None' name='[none:StateName:nk]' pivot='key' type='nominal' />
             <column-instance column='[Type]' derivation='None' name='[none:Type:nk]' pivot='key' type='nominal' />
             <column-instance column='[Number of Records]' derivation='Sum' name='[sum:Number of Records:qk]' pivot='key' type='quantitative' />
           </datasource-dependencies>
+          <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]'>
+            <groupfilter function='crossjoin' user:ui-action-filter='[Action3]' user:ui-enumeration='all' user:ui-marker='enumerate'>
+              <groupfilter function='level-members' level='[Adopted]' />
+              <groupfilter function='level-members' level='[Calculation_1063482857673687040]' />
+            </groupfilter>
+          </filter>
           <filter class='categorical' column='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]'>
-            <groupfilter function='level-members' level='[Type]' user:ui-action-filter='[Action1]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+            <groupfilter function='level-members' level='[Type]' user:ui-enumeration='all' user:ui-marker='enumerate' />
           </filter>
           <slices>
             <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Type1)]</column>
+            <column>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[Action (Adopted,Health_Vaccination_Spay)]</column>
           </slices>
           <aggregation value='true' />
         </view>
@@ -1736,9 +1916,9 @@
         <devicelayout auto-generated='true' name='Phone'>
           <size maxheight='2350' minheight='2350' sizing-mode='vscroll' />
           <zones>
-            <zone h='100000' id='47' type='layout-basic' w='100000' x='0' y='0'>
-              <zone h='98248' id='48' param='vert' type='layout-flow' w='98970' x='515' y='876'>
-                <zone forceUpdate='true' h='8647' id='9' type='text' w='61451' x='515' y='876'>
+            <zone h='100000' id='51' type='layout-basic' w='100000' x='0' y='0'>
+              <zone h='98248' id='52' param='vert' type='layout-flow' w='98910' x='545' y='876'>
+                <zone forceUpdate='true' h='6901' id='9' type='text' w='17154' x='545' y='876'>
                   <formatted-text>
                     <run bold='true' fontcolor='#000000' fontsize='20'>Animal Shelter</run>
                   </formatted-text>
@@ -1750,7 +1930,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='61' h='8647' id='3' is-fixed='true' name='Botton' show-title='false' w='37519' x='61966' y='876'>
+                <zone fixed-size='47' h='6901' id='3' is-fixed='true' name='Botton' show-title='false' w='81756' x='17699' y='876'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1759,7 +1939,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='38226' id='10' is-fixed='true' name='Health' show-title='false' w='49482' x='515' y='9523'>
+                <zone fixed-size='280' h='37458' id='10' is-fixed='true' name='Health' show-title='false' w='49452' x='545' y='7777'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1777,7 +1957,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='38226' id='12' is-fixed='true' name='Gender' w='24736' x='49997' y='9523'>
+                <zone fixed-size='280' h='39972' id='12' is-fixed='true' name='Gender' w='24721' x='49997' y='7777'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1786,7 +1966,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='38226' id='14' is-fixed='true' name='Age Listed' w='24752' x='74733' y='9523'>
+                <zone fixed-size='280' h='39972' id='14' is-fixed='true' name='Age Listed' w='24737' x='74718' y='7777'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1795,7 +1975,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='245' h='31654' id='15' is-fixed='true' name='Adoption Speed' show-title='false' w='49482' x='515' y='47749'>
+                <zone fixed-size='274' h='35269' id='15' is-fixed='true' name='Adoption Speed' show-title='false' w='49452' x='545' y='45235'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1804,7 +1984,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone h='8543' id='36' name='Adoption Speed' pane-specification-id='0' param='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Calculation_1063482857692237831:nk]' type='color' w='9524' x='39447' y='48850'>
+                <zone h='9091' id='36' name='Adoption Speed' pane-specification-id='0' param='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Calculation_1063482857692237831:nk]' type='color' w='10756' x='38666' y='45016'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1813,7 +1993,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='225' h='29131' id='23' is-fixed='true' name='Breed' w='21235' x='49997' y='47749'>
+                <zone fixed-size='225' h='29131' id='23' is-fixed='true' name='Breed' w='21222' x='49997' y='47749'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1822,7 +2002,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='280' h='51375' id='20' is-fixed='true' name='map' show-title='false' w='28253' x='71232' y='47749'>
+                <zone fixed-size='280' h='51375' id='20' is-fixed='true' name='map' show-title='false' w='28236' x='71219' y='47749'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1831,7 +2011,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='170' h='22244' id='27' is-fixed='true' name='Color' w='21235' x='49997' y='76880'>
+                <zone fixed-size='170' h='22244' id='27' is-fixed='true' name='Color' w='21222' x='49997' y='76880'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1840,7 +2020,7 @@
                     <format attr='padding' value='0' />
                   </zone-style>
                 </zone>
-                <zone fixed-size='150' h='19721' id='19' is-fixed='true' name='Photo Amt' show-title='false' w='49482' x='515' y='79403'>
+                <zone fixed-size='141' h='18620' id='19' is-fixed='true' name='Photo Amt' show-title='false' w='49452' x='545' y='80504'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1876,10 +2056,18 @@
       <size sizing-mode='automatic' />
       <zones>
         <zone h='100000' id='4' type='layout-basic' w='100000' x='0' y='0'>
-          <zone h='98248' id='9' param='horz' type='layout-flow' w='98910' x='545' y='876'>
-            <zone h='98248' id='7' param='horz' type='layout-flow' w='98910' x='545' y='876'>
-              <zone h='98248' id='5' type='layout-basic' w='98910' x='545' y='876'>
-                <zone h='98248' id='3' name='Special Breed' w='98910' x='545' y='876'>
+          <zone h='98248' id='9' param='horz' type='layout-flow' w='99056' x='472' y='876'>
+            <zone h='98248' id='7' param='horz' type='layout-flow' w='99056' x='472' y='876'>
+              <zone h='98248' id='5' type='layout-basic' w='99056' x='472' y='876'>
+                <zone h='36912' id='3' name='Special Breed' w='99056' x='472' y='876'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+                <zone h='61336' id='11' is-scaled='1' param='Image/picture.jpg' type='bitmap' w='99056' x='472' y='37788'>
                   <zone-style>
                     <format attr='border-color' value='#000000' />
                     <format attr='border-style' value='none' />
@@ -1907,14 +2095,41 @@
             </zone-style>
           </zone>
         </zone>
-        <zone h='64500' id='11' is-scaled='1' param='Image/picture.jpg' type='bitmap' w='102800' x='-1200' y='34000' />
       </zones>
       <devicelayouts>
         <devicelayout auto-generated='true' name='Phone'>
           <size maxheight='700' minheight='700' sizing-mode='vscroll' />
           <zones>
-            <zone h='100000' id='1' type='layout-basic' w='100000' x='0' y='0'>
-              <zone h='84000' id='2' param='vert' type='layout-flow' w='84000' x='8000' y='8000' />
+            <zone h='100000' id='14' type='layout-basic' w='100000' x='0' y='0'>
+              <zone h='98248' id='15' param='vert' type='layout-flow' w='98910' x='545' y='876'>
+                <zone fixed-size='280' h='98248' id='3' is-fixed='true' name='Special Breed' w='98910' x='545' y='876'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone h='7229' id='10' name='Special Breed' pane-specification-id='0' param='[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Adopted:nk]' type='color' w='16000' x='77800' y='1500'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='280' h='64500' id='11' is-fixed='true' is-scaled='1' param='Image/picture.jpg' type='bitmap' w='102800' x='-1200' y='34000'>
+                  <zone-style>
+                    <format attr='border-color' value='#000000' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+              </zone>
               <zone-style>
                 <format attr='border-color' value='#000000' />
                 <format attr='border-style' value='none' />
@@ -1936,13 +2151,47 @@
       <size sizing-mode='automatic' />
       <zones>
         <zone h='100000' id='2' type='layout-basic' w='100000' x='0' y='0'>
-          <zone h='98248' id='1' param='vert' removable='false' type='layout-flow' w='98910' x='545' y='876'>
-            <zone h='6900' id='4' paired-zone-id='5' removable='false' type='flipboard-nav' w='98910' x='545' y='876' />
-            <zone h='91348' id='5' paired-zone-id='4' removable='false' type='flipboard' w='98910' x='545' y='7776'>
-              <flipboard active-id='1' nav-type='dot' show-nav-arrows='true'>
+          <zone h='98248' id='1' param='vert' removable='false' type='layout-flow' w='99056' x='472' y='876'>
+            <zone h='6900' id='4' paired-zone-id='5' removable='false' type='flipboard-nav' w='99056' x='472' y='876' />
+            <zone h='91348' id='5' paired-zone-id='4' removable='false' type='flipboard' w='99056' x='472' y='7776'>
+              <flipboard active-id='2' nav-type='dot' show-nav-arrows='true'>
                 <story-points>
                   <story-point captured-sheet='Dashboard 1' id='1' />
-                  <story-point captured-sheet='Dashboard 2' id='2' />
+                  <story-point captured-sheet='Dashboard 2' id='2'>
+                    <currentDeltas>
+                      <worksheet name='Special Breed'>
+                        <selection-collection>
+                          <tuple-selection>
+                            <tuple-reference>
+                              <tuple-descriptor>
+                                <pane-descriptor>
+                                  <x-fields>
+                                    <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</field>
+                                  </x-fields>
+                                  <y-fields>
+                                    <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:cfa_breeds:nk]</field>
+                                  </y-fields>
+                                </pane-descriptor>
+                                <columns>
+                                  <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:Adopted:nk]</field>
+                                  <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[none:cfa_breeds:nk]</field>
+                                  <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Health Percentage Long (copy 2):qk]</field>
+                                  <field>[federated.0kvedkb0rvydxd1fnmzxp0wlxzo6].[sum:Number of Records:qk]</field>
+                                </columns>
+                              </tuple-descriptor>
+                              <tuple>
+                                <value>&quot;Yes&quot;</value>
+                                <value>true</value>
+                                <value>0.80632790028763179</value>
+                                <value>841</value>
+                              </tuple>
+                            </tuple-reference>
+                          </tuple-selection>
+                        </selection-collection>
+                      </worksheet>
+                    </currentDeltas>
+                    <capturedDeltas />
+                  </story-point>
                 </story-points>
               </flipboard>
             </zone>
@@ -2297,17 +2546,19 @@
           <default-map-tool-selection tool='1' />
         </viewpoint>
       </viewpoints>
-      <active id='9' />
+      <active id='10' />
       <simple-id uuid='{96BC900A-BD9A-4F5F-BC3B-2BFC50C3094C}' />
     </window>
-    <window class='dashboard' maximized='true' name='Dashboard 2'>
+    <window class='dashboard' name='Dashboard 2'>
       <viewpoints>
-        <viewpoint name='Special Breed' />
+        <viewpoint name='Special Breed'>
+          <zoom type='entire-view' />
+        </viewpoint>
       </viewpoints>
-      <active id='11' />
+      <active id='3' />
       <simple-id uuid='{15D65855-AF5F-4C7A-B6AF-61C8082A710B}' />
     </window>
-    <window class='dashboard' name='Story 1'>
+    <window class='dashboard' maximized='true' name='Story 1'>
       <viewpoints />
       <active id='-1' />
       <simple-id uuid='{D4F27E31-B38F-457F-9BB9-C2E7FB3E96B3}' />

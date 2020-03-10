@@ -1,4 +1,4 @@
-#%%
+#%% import packages
 import pandas as pd
 import category_encoders as ce
 import numpy as np
@@ -24,9 +24,12 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import plot_roc_curve
 from sklearn.metrics import roc_curve
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import preprocessing
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import make_scorer
 import patsy
 
-#%%
+#%% Reading data
 og_training = pd.read_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/train/train.csv")
 breed_label = pd.read_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/breed_labels.csv")
 color_label = pd.read_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/color_labels.csv")
@@ -113,7 +116,7 @@ data2["cfa_breeds"] = np.where((data2["BreedName_1"].str.contains(cfa_breeds)) |
 
 # data2.to_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/malaysia_animal_data2.csv")
 
-#%%
+#%% class for some data manipulation
 class Cleaning:
 
     def __init__(self, path, file_path, data):
@@ -314,6 +317,7 @@ cleaning.data = cleaning.data[cleaning.data["Type"] == "Cat"]
 # cleaning.imputation(0.5)
 
 data = cleaning.data.copy()
+data.drop("StateName", axis = 1, inplace = True) # drop states
 #%% speration check
 cats = data.select_dtypes(exclude="number").columns.tolist()
 cats.remove("Adopted")
@@ -368,9 +372,196 @@ data.BreedName_1 = data.BreedName_1.replace(to_replace = drop_breed, value = "do
 table = pd.crosstab(index = data["Adopted"], columns = data["BreedName_1"])
 
 # State
-table = pd.crosstab(index = data["Adopted"], columns = data["StateName"]) # Lubuan only has one record, drop it to avoid seperation
-data = data[data.StateName != "Labuan"]
+# table = pd.crosstab(index = data["Adopted"], columns = data["StateName"]) # Lubuan only has one record, drop it to avoid seperation
+# data = data[data.StateName != "Labuan"]
 
-#%% initial model building (random forest)
-data.drop(["Quantity"], axis = 1, inplace = True)  # drop unnecessary column
+#%% Data preprocessing
+data.drop(["Quantity", "ColorName_2", "ColorName_3", "BreedName_1"], axis = 1, inplace = True)  # drop unnecessary column
+data.replace({"Adopted": {"Yes": 1, "NoAfter100": 0}}, inplace = True)
+# data.to_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/logistic.csv", index = False)
 
+# vif_corr
+nums = data._get_numeric_data()
+nums = nums.iloc[:, :4]
+vif = pd.DataFrame()
+vif["factor"] = [variance_inflation_factor(nums.values, i) for i in range(nums.shape[1])]
+vif["features"] = nums.columns
+vif_list = vif[vif["factor"] >= 5]["features"]
+
+# reference coding
+vars = data.columns.tolist()
+vars.remove("Adopted")
+vars = " + ".join(vars)
+f = "Adopted ~ " + vars
+y, x = patsy.dmatrices(formula_like = f, data = data, NA_action = "raise", return_type = "dataframe")
+# y = y.iloc[:, 1]
+
+# training and testing split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=55)
+
+# standardize data
+scaler = preprocessing.StandardScaler()
+
+x_train_cont = x_train.iloc[:, -4:]
+x_test_cont = x_test.iloc[:, -4:]
+x_train_scaled = scaler.fit_transform(x_train_cont)
+x_train_scaled = pd.DataFrame(x_train_scaled, columns = x_train_cont.columns)
+x_test_scaled = scaler.transform(x_test_cont)
+x_test_scaled = pd.DataFrame(x_test_scaled, columns = x_test_cont.columns)
+
+x_train_cat = x_train.iloc[:, :-4]
+x_test_cat = x_test.iloc[:, :-4]
+
+x_train_stand = pd.concat([x_train_cat.reset_index(drop = True), x_train_scaled], axis = 1)
+x_test_stand = pd.concat([x_test_cat.reset_index(drop = True), x_test_scaled], axis = 1)
+
+x_train_stand.to_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/x_train.csv", index = False)
+x_test_stand.to_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/x_test.csv", index = False)
+y_train.to_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/y_train.csv", index = False)
+y_test.to_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/y_test.csv", index = False)
+
+x = x_train_stand.append(x_test_stand, ignore_index=True)
+y = y_train.append(y_test, ignore_index = True)
+
+#%% initial model building (LASSO logistic regression)
+logistic_regression = Logit(y_train.values, x_train_stand)
+alpha = np.linspace(0, 1000, 101)
+auc = []
+for a in alpha:
+    rslt = logistic_regression.fit_regularized(alpha = a, disp = False)
+    prediction = rslt.predict(exog = x_test_stand)
+    auc.append(roc_auc_score(y_test, prediction))
+auc = np.array(auc)
+
+# 0 alpha gives the best auc, therefore we can use the regular logistic regression
+logistic_result = logistic_regression.fit()
+logistic_prediction = logistic_result.predict(exog = x_test_stand)
+logistic_result.summary()
+auc_score = round(roc_auc_score(y_test, logistic_prediction), 2)
+
+#%% ROC curve
+def ROC(true, prediction, model):
+    y_test = true
+    prediction = prediction
+    fpr, tpr, t = roc_curve(y_true = y_test, y_score = prediction)
+    auc_score = round(roc_auc_score(y_test, prediction), 2)
+    # plot the roc curve for the model
+    plt.plot(fpr, tpr, marker='.', label=model)
+    plt.plot([0, 1], [0, 1], color='k', linestyle='-', linewidth=2)
+    plt.text(0.8, 0.2, f"AUC: {auc_score}", bbox=dict(facecolor='red', alpha=0.2))
+
+    # axis labels
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    # show the legend
+    plt.legend()
+    # show the plot
+    plt.show()
+
+ROC(y_test, logistic_prediction, "Logistic Regression")
+
+#%% random forest
+random_forest = RandomForestClassifier(n_estimators = 250, criterion = "gini", class_weight = "balanced_subsample",
+                                       bootstrap = True, oob_score = True)
+random_forest.fit(x_train_stand, y_train.values.flatten())
+
+feature_importance = random_forest.feature_importances_
+importance = pd.DataFrame({"importance": feature_importance, "vars": x_train_stand.columns}).sort_values(by = "importance",
+                                                                                                         ascending = False)
+
+plt.figure(figsize = (15, 5))
+plt.xticks(rotation = 90)
+sns.barplot(x = "vars", y = "importance", data = importance[0:15])
+plt.tight_layout()
+plt.show()
+
+# prediction
+prediction_rf = random_forest.predict_proba(x_test)[:, 1]
+auc_score_rf = round(roc_auc_score(y_test, prediction_rf), 2)
+ROC(y_test, prediction_rf, "Initial Random Forest")
+
+#%% tune random forest
+# Number of trees in random forest
+n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+# Number of features to consider at every split
+max_features = ['auto', 'sqrt']
+# Maximum number of levels in tree
+max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+max_depth.append(None)
+# Minimum number of samples required to split a node
+min_samples_split = [2, 5, 10]
+# Minimum number of samples required at each leaf node
+min_samples_leaf = [1, 2, 4]
+# Method of selecting samples for training each tree
+bootstrap = [True, False]
+# Create the random grid
+random_grid = {'n_estimators': n_estimators,
+               'max_features': max_features,
+               'max_depth': max_depth,
+               'min_samples_split': min_samples_split,
+               'min_samples_leaf': min_samples_leaf,
+               'bootstrap': bootstrap}
+
+# Use the random grid to search for best hyperparameters
+# First create the base model to tune
+rf = RandomForestClassifier()
+# Random search of parameters, using 3 fold cross validation,
+# search across 100 different combinations, and use all available cores
+rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=55, n_jobs = -1, scoring = "roc_auc")
+# Fit the random search model
+rf_random.fit(x, y.values.flatten())
+
+rf_random.best_params_
+rf_random.best_score_
+best_rf = RandomForestClassifier(n_estimators = 2000, criterion = "gini", min_samples_split = 2,
+                                       bootstrap = False, min_samples_leaf = 2, max_features = "auto",
+                                 max_depth = 10, random_state = 55)
+
+
+best_rf.fit(x_train_stand, y_train.values.flatten())
+best_prediction = best_rf.predict_proba(x_test_stand)[:, 1]
+roc_auc_score(y_test, best_prediction)
+
+ROC(y_test, best_prediction[:, 1], "Tuned Random Forest")
+
+feature_importance = best_rf.feature_importances_
+importance = pd.DataFrame({"importance": feature_importance, "vars": x_train_stand.columns}).sort_values(by = "importance",
+                                                                                                         ascending = False)
+
+plt.figure(figsize = (15, 5))
+plt.xticks(rotation = 90)
+sns.barplot(x = "vars", y = "importance", data = importance[0:6])
+plt.tight_layout()
+plt.show()
+# def custom_auc(ground_truth, predictions):
+#     # I need only one column of predictions["0" and "1"]. You can get an error here
+#     # while trying to return both columns at once
+#     fpr, tpr, t = roc_curve(y_true=ground_truth, y_score=predictions)
+#     auc_score = roc_auc_score(ground_truth, predictions)
+#     return auc_score
+#
+# my_auc = make_scorer(custom_auc, greater_is_better=True, needs_proba=True)
+#%% plot three ROC curves together
+fpr_logit, tpr_logit, t = roc_curve(y_true=y_test, y_score=logistic_prediction)
+fpr_rf_i, tpr_rf_i, t_rf_i = roc_curve(y_true=y_test, y_score=prediction_rf)
+fpr_rf_t, tpr_rf_t, t_rf_t = roc_curve(y_true=y_test, y_score=best_prediction)
+
+auc_score_logit = round(roc_auc_score(y_test, logistic_prediction), 2)
+auc_score_rf_i = round(roc_auc_score(y_test, prediction_rf), 2)
+auc_score_rf_t = round(roc_auc_score(y_test, best_prediction), 2)
+
+# plot the roc curve for the model
+plt.plot(fpr_logit, tpr_logit, marker='.', label=f"Logistic Regression: {auc_score_logit}", color = "b")
+plt.plot(fpr_rf_i, tpr_rf_i, marker='.', label=f"Initial Random Forest: {auc_score_rf_i}", color = "r")
+plt.plot(fpr_rf_t, tpr_rf_t, marker='.', label=f"Tuned Random Forest: {auc_score_rf_t}", color = "g")
+
+plt.plot([0, 1], [0, 1], color='k', linestyle='-', linewidth=2)
+# plt.text(0.8, 0.2, f"AUC: {auc_score}", bbox=dict(facecolor='red', alpha=0.2))
+
+# axis labels
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+# show the legend
+plt.legend()
+# show the plot
+plt.show()

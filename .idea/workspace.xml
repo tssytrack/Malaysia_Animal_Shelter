@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8df0c1a6-9a5e-46f2-8ad0-b256eafe27a9" name="Default Changelist" comment="" />
+    <list default="true" id="8df0c1a6-9a5e-46f2-8ad0-b256eafe27a9" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.~Malaysia_Animal_noNotsure__15113.twbr" beforeDir="false" afterPath="$PROJECT_DIR$/.~Malaysia_Animal_noNotsure__15113.twbr" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Malaysia_Animal_noNotsure.twbx" beforeDir="false" afterPath="$PROJECT_DIR$/Malaysia_Animal_noNotsure.twbx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/malaysia_animal.py" beforeDir="false" afterPath="$PROJECT_DIR$/malaysia_animal.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,7 +35,11 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1YlvVUryVlGnrwC3DDMGxxlwPTY" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -36,6 +47,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -43,7 +55,7 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+    <property name="settings.editor.selected.configurable" value="PyScientificConfigurable" />
   </component>
   <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
@@ -121,7 +133,10 @@
       <workItem from="1583530019787" duration="2511000" />
       <workItem from="1583538288203" duration="883000" />
       <workItem from="1583598673640" duration="19806000" />
-      <workItem from="1583707033957" duration="916000" />
+      <workItem from="1583707033957" duration="2460000" />
+      <workItem from="1583718648659" duration="2116000" />
+      <workItem from="1583722742835" duration="15165000" />
+      <workItem from="1583816633308" duration="7081000" />
     </task>
     <servers />
   </component>
@@ -133,13 +148,19 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="440" y="190" key="#Notifications/-2560.-135.2560.1440/0.0.1680.1050@0.0.1680.1050" timestamp="1583626972557" />
-    <state x="698" y="163" key="SettingsEditor" timestamp="1583530500934">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state x="-1496" y="108" key="SettingsEditor" timestamp="1583721263052">
+      <screen x="-2560" y="-112" width="2560" height="1417" />
     </state>
+    <state x="-1496" y="108" key="SettingsEditor/-2560.-112.2560.1417/0.23.1680.1027@-2560.-112.2560.1417" timestamp="1583721263052" />
     <state x="698" y="163" key="SettingsEditor/0.0.1680.1050@0.0.1680.1050" timestamp="1583530500934" />
-    <state x="504" y="357" key="com.intellij.ide.util.TipDialog" timestamp="1583707039216">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="840" height="513" key="XDebugger.FullValuePopup" timestamp="1583780296453">
+      <screen x="0" y="23" width="1680" height="1027" />
     </state>
+    <state width="840" height="513" key="XDebugger.FullValuePopup/0.23.1680.1027@0.23.1680.1027" timestamp="1583780296453" />
+    <state x="-1792" y="370" key="com.intellij.ide.util.TipDialog" timestamp="1583722742858">
+      <screen x="-2560" y="-112" width="2560" height="1417" />
+    </state>
+    <state x="-1792" y="370" key="com.intellij.ide.util.TipDialog/-2560.-112.2560.1417/0.23.1680.1027@-2560.-112.2560.1417" timestamp="1583722742858" />
     <state x="504" y="357" key="com.intellij.ide.util.TipDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1583707039216" />
   </component>
 </project>

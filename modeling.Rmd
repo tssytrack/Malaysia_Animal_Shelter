@@ -1,0 +1,148 @@
+---
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(dplyr)
+library(glmnet)
+library(ggplot2)
+library(pROC)
+library(car)
+library(mgcv)
+```
+
+```{r}
+x_train <- read.csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/x_train.csv")
+x_train <- x_train[, -1]
+
+x_test <- read.csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/x_test.csv")
+x_test <- x_test[, -1]
+
+y_train <- read.csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/y_train.csv")
+
+y_test <- read.csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/y_test.csv")
+```
+
+```{r}
+x <- as.matrix(rbind(x_train, x_test))
+y <- as.matrix(rbind(y_train, y_test))
+```
+
+```{r}
+set.seed(55)
+cv.lasso <- cv.glmnet(as.matrix(x_train), as.matrix(y_train), alpha = 1, family = "binomial", type.measure = "auc")
+coef(cv.lasso, cv.lasso$lambda.min)
+# lasso.logistic <- glmnet(x, y, alpha = 1, family = "binomail", )
+
+model <- glmnet(as.matrix(x_train), as.matrix(y_train), alpha = 1, family = "binomial", lambda = cv.lasso$lambda.min)
+prediction <- model %>% predict(newx = as.matrix(x_test), type = "response")
+LASSO.roc <- roc(y_test$Adopted, as.numeric(prediction), levels = c(0, 1), direction = "<")
+auc(LASSO.roc)
+
+plot(LASSO.roc, print.auc = TRUE)
+```
+
+```{r}
+plot(cv.lasso)
+```
+
+# Training and Validation Split
+```{r}
+data <- read.csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-prediction/logistic.csv")
+data <- data[, -1]
+
+dtypes <- as.data.frame(sapply(data, class))
+
+# Create Training and Validation #
+set.seed(919)
+train_id <- sample(seq_len(nrow(data)), size = floor(0.70*nrow(data)))
+
+train <- data[train_id, ]
+train <- as.data.frame(train)
+test <- data[-train_id, ]
+test <- as.data.frame(test)
+
+table(train$Adopted)
+table(test$Adopted)
+
+```
+
+### Regular logistic regression
+```{r}
+full.model <- glm(Adopted ~ ., data = train, family = binomial(link = "logit"))
+summary(full.model)
+```
+
+### Categorical checking
+```{r}
+BackwardModel <- glm(Adopted ~ Gender + MaturitySize + FurLength + Vaccinated + Dewormed + Sterilized + Health + cfa_breeds + ColorName_1, data = train, family = binomial(link = "logit"))
+
+Pvalues = matrix(NA, ncol = 1, nrow = 9)
+
+r.gender <- glm(Adopted ~ MaturitySize + FurLength + Vaccinated + Dewormed + Sterilized + Health + cfa_breeds + ColorName_1, data = train, family = binomial(link = "logit"))
+Pvalues[1] <- anova(BackwardModel, r.gender, test = "LRT")[2, 5]
+
+r.size <- glm(Adopted ~ Gender + FurLength + Vaccinated + Dewormed + Sterilized + Health + cfa_breeds + ColorName_1, data = train, family = binomial(link = "logit"))
+Pvalues[2] <- anova(BackwardModel, r.size, test = "LRT")[2, 5]
+
+r.fur <- glm(Adopted ~ Gender + MaturitySize + Vaccinated + Dewormed + Sterilized + Health + cfa_breeds + ColorName_1, data = train, family = binomial(link = "logit"))
+Pvalues[3] <- anova(BackwardModel, r.fur, test = "LRT")[2, 5]
+
+r.vac <- glm(Adopted ~ Gender + MaturitySize + FurLength + Dewormed + Sterilized + Health + cfa_breeds + ColorName_1, data = train, family = binomial(link = "logit"))
+Pvalues[4] <- anova(BackwardModel, r.vac, test = "LRT")[2, 5]
+
+r.worm <- glm(Adopted ~ Gender + MaturitySize + FurLength + Vaccinated + Sterilized + Health + cfa_breeds + ColorName_1, data = train, family = binomial(link = "logit"))
+Pvalues[5] <- anova(BackwardModel, r.worm, test = "LRT")[2, 5]
+
+r.ster <- glm(Adopted ~ Gender + MaturitySize + FurLength + Vaccinated + Dewormed + Health + cfa_breeds + ColorName_1, data = train, family = binomial(link = "logit"))
+Pvalues[6] <- anova(BackwardModel, r.ster, test = "LRT")[2, 5]
+
+r.health <- glm(Adopted ~ Gender + MaturitySize + FurLength + Vaccinated + Dewormed + Sterilized + cfa_breeds + ColorName_1, data = train, family = binomial(link = "logit"))
+Pvalues[7] <- anova(BackwardModel, r.health, test = "LRT")[2, 5]
+
+r.breed <- glm(Adopted ~ Gender + MaturitySize + FurLength + Vaccinated + Dewormed + Sterilized + Health + ColorName_1, data = train, family = binomial(link = "logit"))
+Pvalues[8] <- anova(BackwardModel, r.breed, test = "LRT")[2, 5]
+
+r.color <- glm(Adopted ~ Gender + MaturitySize + FurLength + Vaccinated + Dewormed + Sterilized + Health + cfa_breeds, data = train, family = binomial(link = "logit"))
+Pvalues[9] <- anova(BackwardModel, r.color, test = "LRT")[2, 5]
+
+DataFrame <- data.frame(Pvalue = Pvalues)
+rownames(DataFrame) <- c("Gender", "MaturitySize", "FurLength", "Vaccinated", "Dewormed", "Sterilized", "Health", "cfa_breeds", "ColorName_1")
+
+# p-values
+DataFrame$significance <- sapply(DataFrame$Pvalue, function (x) {
+  if (x <= 0.05) {
+    return(1)
+  } else {
+    return(0)
+  }
+})
+```
+
+### prediction
+```{r}
+full.model <- glm(Adopted ~ ., data = train, family = binomial)
+probabilities <- data.frame(full.model %>% predict(test %>% select(-Adopted), type = "response"))
+colnames(probabilities) <- "probabilities"
+
+# predicted.classes <- ifelse(probabilities > 0.6, 1, 0)
+roc <- roc(as.numeric(test$Adopted), probabilities$probabilities, levels = c(0, 1), direction = "<")
+auc(roc)
+
+plot(roc, print.auc = TRUE)
+
+# cutoff <- seq(0, 1, length.out = 100)
+# auc_list <- matrix(NA, nrow = 100, ncol = 1)
+# for (i in cutoff) {
+#   predicted.classes <- ifelse(probabilities > i, 1, 0)
+#   roc <- roc(as.numeric(test$Adopted), as.numeric(predicted.classes),
+#              levels = c(0, 1), direction = "<")
+#   auc <- auc(roc)
+#   auc_list[i, 1] <- auc
+# }
+```
+
