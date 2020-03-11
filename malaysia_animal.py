@@ -423,6 +423,16 @@ y_test.to_csv("/Users/dauku/Desktop/Python/AnimalShelter/petfinder-adoption-pred
 x = x_train_stand.append(x_test_stand, ignore_index=True)
 y = y_train.append(y_test, ignore_index = True)
 
+pineapple_num = pd.DataFrame({"Age": 12, "Fee": 0, "VideoAmt": 0, "PhotoAmt": 1}, index = [0])
+pineapple_stand = pd.DataFrame(scaler.transform(pineapple_num))
+pineapple_stand.columns = pineapple_num.columns
+
+pineapple_cat = np.array([1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]).reshape(-1, 19)
+pineapple_cat_df = pd.DataFrame(pineapple_cat)
+pineapple_cat_df.columns = x_train_stand.columns[:-4]
+
+pineapple = pd.concat([pineapple_cat_df, pineapple_num], axis = 1)
+
 #%% initial model building (LASSO logistic regression)
 logistic_regression = Logit(y_train.values, x_train_stand)
 alpha = np.linspace(0, 1000, 101)
@@ -530,7 +540,7 @@ importance = pd.DataFrame({"importance": feature_importance, "vars": x_train_sta
 
 plt.figure(figsize = (15, 5))
 plt.xticks(rotation = 90)
-sns.barplot(x = "vars", y = "importance", data = importance[0:6])
+sns.barplot(x = "vars", y = "importance", data = importance[0:10])
 plt.tight_layout()
 plt.show()
 # def custom_auc(ground_truth, predictions):
@@ -565,3 +575,6 @@ plt.ylabel('True Positive Rate')
 plt.legend()
 # show the plot
 plt.show()
+
+#%% pineapple example
+best_rf.predict_proba(pineapple)

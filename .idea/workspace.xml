@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8df0c1a6-9a5e-46f2-8ad0-b256eafe27a9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.~Malaysia_Animal_noNotsure__15113.twbr" beforeDir="false" afterPath="$PROJECT_DIR$/.~Malaysia_Animal_noNotsure__15113.twbr" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.~Malaysia_Animal_noNotsure__15113.twbr" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Malaysia_Animal_noNotsure.twbx" beforeDir="false" afterPath="$PROJECT_DIR$/Malaysia_Animal_noNotsure.twbx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/malaysia_animal.py" beforeDir="false" afterPath="$PROJECT_DIR$/malaysia_animal.py" afterDir="false" />
     </list>
@@ -136,7 +134,7 @@
       <workItem from="1583707033957" duration="2460000" />
       <workItem from="1583718648659" duration="2116000" />
       <workItem from="1583722742835" duration="15165000" />
-      <workItem from="1583816633308" duration="7081000" />
+      <workItem from="1583816633308" duration="11299000" />
     </task>
     <servers />
   </component>
